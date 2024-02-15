@@ -34,6 +34,8 @@ var portId = port{
 	mutex: sync.Mutex{},
 }
 
+// Создавая новую машину задаем ему порт, который далее увеличиваем и отправляем запрос на
+// регистрацию машины с некоторым именем и портом . Задаем ему хэндлер по которому он будет слушать запросы
 func New(name string) (*Machine, error) {
 	portId.mutex.Lock()
 	machinePort := portId.port

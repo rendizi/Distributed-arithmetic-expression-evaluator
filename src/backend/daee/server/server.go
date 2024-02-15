@@ -2,10 +2,9 @@ package server
 
 import (
 	"fmt"
+	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/src/backend/daee/db"
 	"net/http"
 	"strings"
-
-	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/src/backend/database/db"
 )
 
 func PostExp(w http.ResponseWriter, r *http.Request) {
@@ -26,10 +25,23 @@ func PostExp(w http.ResponseWriter, r *http.Request) {
 	}
 	settings := strings.Split(settingsString, ",")
 	if len(settings) != 4 {
-		http.Error(w, "length of settings is not 4", http.StatusBadRequest)
+		http.Error(w, "length of settings is not 4:"+settingsString, http.StatusBadRequest)
 		return
 	}
 
+	//проверяем на импатентность
+	answer, time, _ := db.Solved(userId, task)
+
+	if answer != "" {
+		//если ответ не пустой- задание было уже решено и мы обновляем бд
+		err := db.Update(userId, task, answer, time)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+	//иначу добавляем в бд и дальше он будет добавлен в очередь
 	err := db.Insert(userId, task, settingsString)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -37,9 +49,11 @@ func PostExp(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, "expression uploaded")
+
 }
 
 func GetExpList(w http.ResponseWriter, r *http.Request) {
+	//отправляет запрос в бд на получение списка всех выражений отправленные юзером
 	expMap, err := db.Get(r.URL.Query().Get("id"))
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -54,6 +68,7 @@ func GetExpList(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetOps(w http.ResponseWriter, r *http.Request) {
+	//отправляет запрос в бд где нет ответов
 	opMap, err := db.Get("ns")
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -66,6 +81,7 @@ func GetOps(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTask(w http.ResponseWriter, r *http.Request) {
+	//из списка выражений у которых нет ответов берет 1 и возвращает
 	tasks, err := db.Get("ns")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

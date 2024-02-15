@@ -3,9 +3,9 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"log"
-
 	_ "github.com/lib/pq"
+	"log"
+	"time"
 )
 
 const (
@@ -18,6 +18,7 @@ const (
 
 var db *sql.DB
 
+// На запуске создаем таблицу если не существует и подключаемся к бд
 func init() {
 	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
@@ -53,6 +54,7 @@ func init() {
 	fmt.Println("Table 'tasks' created successfully!")
 }
 
+// функция, добавляющая в таблицу новое задание и на столбец ответ ставит значение нет
 func Insert(user, task, settings string) error {
 	insertQuery := `INSERT INTO tasks (userId, task,answer,settings) VALUES ($1, $2,$3,$4);`
 	_, err := db.Exec(insertQuery, user, task, "no", settings)
@@ -62,6 +64,7 @@ func Insert(user, task, settings string) error {
 	return nil
 }
 
+// функция обновляющая таблицу, добавляет ответ и время выполнения
 func Update(user, task, answer, time string) error {
 	if len(task) > 0 && task[len(task)-1] == '\n' {
 		task = task[:len(task)-1]
@@ -74,8 +77,14 @@ func Update(user, task, answer, time string) error {
 	return nil
 }
 
+//Функция ниже по дефолту просто берет все записи с бд, но если подается userId, который не является
+// ns , берет только записи , принадлежащие к некоторому юзеру, иначе если userId равен ns он выведет
+// все записи у которых нет ответа.
+
+// Получается что при подаче в функцию пустую строку вернутся все записи, при подаче ns операции(ведь
+// у них нет ответа) , при подаче юзерайди всю историю запросов юзера
 func Get(userId string) (map[int][]string, error) {
-	query := "SELECT id, userId, task,time answer FROM tasks"
+	query := "SELECT id, userId, task,time, answer FROM tasks"
 	if len(userId) != 0 && userId != "ns" {
 		query = fmt.Sprintf("SELECT userId , task, answer,time FROM tasks WHERE userId = '%s'", userId)
 	} else if userId == "ns" {
@@ -98,4 +107,25 @@ func Get(userId string) (map[int][]string, error) {
 		id++
 	}
 	return result, nil
+}
+
+// Данная функция проверяет на импатентность, тоесть если юзер уже отправлял такое задание
+// и оно решено - просто вернуть ответ
+func Solved(userId, task string) (string, string, error) {
+	query := "SELECT answer FROM tasks WHERE userId = $1 AND task = $2 AND answer != $3"
+	fmt.Println(query)
+	rows, err := db.Query(query, userId, task, "no")
+	if err != nil {
+		return "", "", err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var answer string
+		err = rows.Scan(&answer)
+		if err != nil {
+			return "", "", err
+		}
+		return answer, time.Microsecond.String(), nil
+	}
+	return "", "", fmt.Errorf("no record found")
 }

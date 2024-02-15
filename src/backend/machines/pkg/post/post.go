@@ -8,6 +8,7 @@ import (
 	"net/url"
 )
 
+// функция для отправки ответа на задание
 func Task(id, answer, task, time string) error {
 	baseURL := "http://127.0.0.1:8080/task"
 	query := url.Values{}

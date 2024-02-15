@@ -21,6 +21,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		//создаем новую машину
 		First, err := machine.New("Superpupermachine")
 		if err != nil {
 			log.Println("Error creating machine number 1:", err.Error())
@@ -29,26 +30,20 @@ func main() {
 		fmt.Println("Machine is waked up")
 		go func() {
 			for {
+				//если есть какое-нибудь задание
 				if settingsString, resp, err := reqs.Task(); err == nil && len(resp) != 0 {
+					//отделяем ответ на выражение и настройки, которые разделены символом &
 					task := divideResp(resp)
-
+					//проверяем настройки на длину и переводим в целочисленный список
 					settings, err := settings(settingsString)
 					if err != nil {
+						//иначе отправляем ошибку
 						_ = post.Task(string(resp[0]), "error", resp[1:], "")
 						time.Sleep(5 * time.Second)
 						continue
 					}
-					result, time := evaluate.Solve(task[1:], settings)
-
-					if !isInt(result) {
-						result = "error"
-					}
-
-					err = post.Task(string(task[0]), result, task[1:], time)
-					if err != nil {
-						log.Println("Error posting task result:", err.Error())
-					}
-
+					//решаем
+					evaluate.Solve(task[1:], settings)
 				}
 				time.Sleep(5 * time.Second)
 			}
@@ -60,11 +55,6 @@ func main() {
 		}
 	}()
 	wg.Wait()
-}
-
-func isInt(s string) bool {
-	_, err := strconv.Atoi(s)
-	return err == nil
 }
 
 func settings(settings string) ([]int, error) {

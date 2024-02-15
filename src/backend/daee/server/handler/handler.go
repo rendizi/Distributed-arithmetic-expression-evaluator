@@ -2,19 +2,20 @@ package handle
 
 import (
 	"fmt"
+	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/src/backend/daee/db"
 	"log"
 	"net/http"
 	"sync"
 	"time"
 
 	server "github.com/rendizi/Distributed-arithmetic-expression-evaluator/src/backend/daee/server"
-	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/src/backend/database/db"
 )
 
 // Virazheniya
 var (
-	compId       = 0
-	machinesList *MachinesList
+	compId        = 0
+	machinesList  *MachinesList
+	machinesCount = 0
 )
 
 type MachinesList struct {
@@ -22,6 +23,7 @@ type MachinesList struct {
 	mutex sync.Mutex
 }
 
+// на запуске создаем список вычислительных машин
 func init() {
 	machinesList = &MachinesList{List: make([][]string, 0), mutex: sync.Mutex{}}
 }
@@ -57,11 +59,11 @@ func Task(w http.ResponseWriter, r *http.Request) {
 			server.GetTask(w, r)
 		}
 	} else if r.Method == http.MethodPost {
+		//Данная часть добавляет ответ на некое выражение в бд
 		id := r.URL.Query().Get("id")
 		answ := r.URL.Query().Get("answ")
 		task := r.URL.Query().Get("task")
 		time := r.URL.Query().Get("time")
-		fmt.Println(id, answ, task, time)
 
 		if len(id) == 0 || len(answ) == 0 || len(task) == 0 {
 			http.Error(w, "Empty fields", http.StatusBadRequest)
@@ -91,16 +93,22 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "no port provided", http.StatusBadRequest)
 		return
 	}
-	fmt.Fprintln(w, compId)
+	//ниже мы добавляем новую вычислительную машину в список
 	compId++
-	info := []string{name, port, time.November.String(), "alive"}
+	info := []string{name, port, time.Now().String(), "alive"}
 	machinesList.mutex.Lock()
 	machinesList.List = append(machinesList.List, info)
 	machinesList.mutex.Unlock()
-	go pingMachine()
+	machinesCount++
+	//если это первая машине, то запускаем горутину, переодически пингующая вычислительные машины
+	if machinesCount == 1 {
+		go pingMachine()
+	}
+
 }
 
 func Machines(w http.ResponseWriter, r *http.Request) {
+	//возвращает инфу о машинах
 	machinesList.mutex.Lock()
 	w.WriteHeader(http.StatusOK)
 	for _, machine := range machinesList.List {
@@ -110,19 +118,22 @@ func Machines(w http.ResponseWriter, r *http.Request) {
 }
 
 func pingMachine() {
-	machinesList.mutex.Lock()
-	for _, machine := range machinesList.List {
-		resp, err := http.Get("http://127.0.0.1:" + machine[1] + "/")
-		if err != nil {
-			log.Println(err)
-			continue
+	//отправляет запрос в соответствии которым меняет статус
+	for {
+		machinesList.mutex.Lock()
+		for _, machine := range machinesList.List {
+			resp, err := http.Get("http://127.0.0.1:" + machine[1] + "/")
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				machine[3] = "dead"
+			}
+			machine[2] = time.Now().String()
 		}
-		defer resp.Body.Close()
-		if resp.StatusCode != http.StatusOK {
-			machine[3] = "dead"
-		}
-		machine[2] = time.Now().String()
+		machinesList.mutex.Unlock()
+		time.Sleep(1 * time.Minute)
 	}
-	machinesList.mutex.Unlock()
-	time.Sleep(1 * time.Minute)
 }
