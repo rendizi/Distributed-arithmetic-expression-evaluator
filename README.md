@@ -87,5 +87,9 @@ go run src/backend/machines/cmd/main.go
 curl -X GET "http://127.0.0.1:8081/"
 ```
 
+<h2>Схема</h2>
+<p align="center">
+ <image src="https://github.com/rendizi/Distributed-arithmetic-expression-evaluator/assets/120701599/750bc70c-bcab-4de2-9f73-da5a299f5be9">
+</p>
 
 
