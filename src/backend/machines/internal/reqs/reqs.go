@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-// функция для получения доступных заданий
+// код нижу отправляет запрос на главный сервер, возвращая новое задание для выполнения
 func Task() (string, string, error) {
 	response, err := http.Get("http://127.0.0.1:8080/task?id=1")
 	if err != nil {

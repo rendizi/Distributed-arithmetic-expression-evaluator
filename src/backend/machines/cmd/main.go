@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/src/backend/machines/internal/post"
 	"log"
 	"strconv"
 	"strings"
@@ -12,7 +13,6 @@ import (
 	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/src/backend/machines/internal/evaluate"
 	machine "github.com/rendizi/Distributed-arithmetic-expression-evaluator/src/backend/machines/internal/machine"
 	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/src/backend/machines/internal/reqs"
-	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/src/backend/machines/pkg/post"
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		//создаем новую машину
+		//создаем новую вычислительную машину
 		First, err := machine.New("Superpupermachine")
 		if err != nil {
 			log.Println("Error creating machine number 1:", err.Error())
@@ -30,20 +30,30 @@ func main() {
 		fmt.Println("Machine is waked up")
 		go func() {
 			for {
-				//если есть какое-нибудь задание
+				//проверяем новые задания
 				if settingsString, resp, err := reqs.Task(); err == nil && len(resp) != 0 {
-					//отделяем ответ на выражение и настройки, которые разделены символом &
+					//отделяем задание от настроек- они разделениы через &
 					task := divideResp(resp)
-					//проверяем настройки на длину и переводим в целочисленный список
+
 					settings, err := settings(settingsString)
 					if err != nil {
-						//иначе отправляем ошибку
+						//возвращаем ошибку- настройки неправильные
 						_ = post.Task(string(resp[0]), "error", resp[1:], "")
 						time.Sleep(5 * time.Second)
 						continue
 					}
-					//решаем
-					evaluate.Solve(task[1:], settings)
+					//решаем задание
+					result, time := evaluate.Solve(task[1:], settings)
+
+					if !isInt(result) {
+						result = "error"
+					}
+					//постим результат
+					err = post.Task(string(task[0]), result, task[1:], time)
+					if err != nil {
+						log.Println("Error posting task result:", err.Error())
+					}
+
 				}
 				time.Sleep(5 * time.Second)
 			}
@@ -57,7 +67,13 @@ func main() {
 	wg.Wait()
 }
 
+func isInt(s string) bool {
+	_, err := strconv.Atoi(s)
+	return err == nil
+}
+
 func settings(settings string) ([]int, error) {
+	//разделяем строку на массив и каждое значение переводим в целичисленное
 	settings = settings[1:]
 	result := strings.Split(settings, ",")
 	if len(result) != 4 {
@@ -76,6 +92,7 @@ func settings(settings string) ([]int, error) {
 }
 
 func divideResp(resp string) string {
+	//разделяем с помощью &
 	output := ""
 	for i := 0; i < len(resp); i++ {
 		if resp[i] == '&' {
