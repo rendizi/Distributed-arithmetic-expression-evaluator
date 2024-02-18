@@ -124,13 +124,12 @@ func pingMachine() {
 		for _, machine := range machinesList.List {
 			resp, err := http.Get("http://127.0.0.1:" + machine[1] + "/")
 			if err != nil {
-				log.Println(err)
+				machine[3] = "dead"
+				time.Sleep(1 * time.Minute)
 				continue
 			}
+			machine[3] = "alive"
 			defer resp.Body.Close()
-			if resp.StatusCode != http.StatusOK {
-				machine[3] = "dead"
-			}
 			machine[2] = time.Now().String()
 		}
 		machinesList.mutex.Unlock()
