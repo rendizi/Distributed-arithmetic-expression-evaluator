@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"context"
@@ -46,8 +46,23 @@ func (s *Server) Op(
 	// вычислим периметр и вернём ответ
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	var res float32
+	switch in.Operator {
+	case "+":
+		res = in.A + in.B
+	case "-":
+		res = in.A - in.B
+	case "*":
+		res = in.A * in.B
+	case "/":
+		if in.B == 0 {
+			res = 0.0
+		} else {
+			res = in.A / in.B
+		}
+	}
 	return &pb.OpResponse{
-		Result: float32(in.A / in.B),
+		Result: res,
 	}, nil
 }
 
@@ -72,9 +87,11 @@ func createAgent(port int) (*grpc.Server, net.Listener) {
 }
 
 func main() {
+	var wg sync.WaitGroup
 	port := 5000
 	i := 0
 	for i < 3 {
+		wg.Add(1)
 		grpcServer, lis := createAgent(port)
 		port++
 		i++
@@ -85,4 +102,5 @@ func main() {
 			}
 		}()
 	}
+	wg.Wait()
 }

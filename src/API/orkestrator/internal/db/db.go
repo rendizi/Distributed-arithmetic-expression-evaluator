@@ -54,7 +54,7 @@ func init() {
 	//Table Expressions
 	createTableQuery = `
         CREATE TABLE IF NOT EXISTS expressions (
-    		id INTEGER PRIMARY KEY,
+    		id SERIAL PRIMARY KEY,
     		expression TEXT NOT NULL,
     		settings TEXT NOT NULL,
     		result TEXT,
@@ -76,7 +76,6 @@ func init() {
 			id SERIAL PRIMARY KEY,
 			operation TEXT NOT NULL,
 			result TEXT,
-			agent_port INTEGER,
     		expression_id INTEGER NOT NULL,
     		FOREIGN KEY (expression_id) REFERENCES expressions(id)
 );

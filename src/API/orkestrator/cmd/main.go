@@ -1,8 +1,8 @@
 package main
 
 import (
-	"daee/src/API/orkestrator/server/handler"
 	"fmt"
+	"github.com/rendizi/daee/src/API/orkestrator/server/handler"
 	"net/http"
 	"os"
 
@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	registerHandler http.Handler = http.HandlerFunc(handler.Register)
-	loginHandler    http.Handler = http.HandlerFunc(handler.Login)
+	registerHandler   http.Handler = http.HandlerFunc(handler.Register)
+	loginHandler      http.Handler = http.HandlerFunc(handler.Login)
+	expressionHandler http.Handler = http.HandlerFunc(handler.Expression)
 )
 
 func main() {
@@ -20,6 +21,7 @@ func main() {
 	loggerWithFormatter := httplog.LoggerWithFormatter(httplog.DefaultLogFormatterWithRequestHeader)
 	mux.Handle("/register", loggerWithFormatter(registerHandler))
 	mux.Handle("/login", loggerWithFormatter(loginHandler))
+	mux.Handle("/expression", loggerWithFormatter(expressionHandler))
 
 	corsHandler := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

@@ -6,7 +6,6 @@ require (
 	github.com/MadAppGang/httplog v1.3.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/lib/pq v1.10.9
-	github.com/rendizi/grpc-service-example v0.0.0-20240326223953-4ab79195ec8b
 	google.golang.org/grpc v1.62.1
 	google.golang.org/protobuf v1.32.0
 )

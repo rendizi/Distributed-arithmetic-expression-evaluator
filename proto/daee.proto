@@ -11,8 +11,8 @@ message AvResponse {
 
 //Сообщение для описания запроса на вычисление выражения
 message OpRequest {
-  int64 a = 1;
-  int64 b = 2;
+  float a = 1;
+  float b = 2;
   string operator = 3;
   int64 time = 4;
 }

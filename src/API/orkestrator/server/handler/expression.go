@@ -6,6 +6,7 @@ import (
 	"github.com/rendizi/daee/src/API/orkestrator/internal/distributer"
 	"github.com/rendizi/daee/src/API/orkestrator/server"
 	"net/http"
+	"strconv"
 )
 
 func Expression(w http.ResponseWriter, r *http.Request) {
@@ -19,7 +20,56 @@ func Expression(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetExpression(w http.ResponseWriter, r *http.Request) {
+	expId := r.URL.Query().Get("id")
+	if len(expId) == 0 {
+		login := server.GetLogin(w, r)
+		if login == "" {
+			return
+		}
+		expressions, results, err := db.GetExpressions(login)
+		if err != nil {
+			server.Error(map[string]interface{}{"message": err.Error(), "status": 400}, w)
+			return
+		}
+		if len(expressions) != len(results) {
+			server.Error(map[string]interface{}{"message": "mismatched lengths of expressions and results slices", "status": 400}, w)
+			return
+		}
 
+		var expressionsJSON []db.ExpressionJSON
+		for i := 0; i < len(expressions); i++ {
+			expressionJSON := db.ExpressionJSON{
+				Expression: expressions[i],
+				Result:     results[i],
+			}
+			expressionsJSON = append(expressionsJSON, expressionJSON)
+		}
+
+		jsonData, err := json.Marshal(expressionsJSON)
+		if err != nil {
+			server.Error(map[string]interface{}{"message": err.Error(), "status": 400}, w)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(jsonData)
+		return
+	}
+	intExpId, err := strconv.Atoi(expId)
+	if err != nil {
+		server.Error(map[string]interface{}{"message": "Invalid id", "status": 400}, w)
+		return
+	}
+	login := server.GetLogin(w, r)
+	if login == "" {
+		return
+	}
+	exp, res, err := db.GetExpression(intExpId, login)
+	if err != nil {
+		server.Error(map[string]interface{}{"message": err.Error(), "status": 400}, w)
+		return
+	}
+	server.Ok(map[string]interface{}{"expression": exp, "result": res}, w)
 }
 
 func PostExpression(w http.ResponseWriter, r *http.Request) {
@@ -27,7 +77,7 @@ func PostExpression(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&expr)
 	if err != nil {
-		server.Error(map[string]interface{}{"message": "Data is not provided", "status": 400}, w)
+		server.Error(map[string]interface{}{"message": err.Error(), "status": 400}, w)
 		return
 	}
 
@@ -42,6 +92,6 @@ func PostExpression(w http.ResponseWriter, r *http.Request) {
 		server.Error(map[string]interface{}{"message": err.Error(), "status": 400}, w)
 		return
 	}
-	distributer.Do(expr, id)
+	go distributer.Do(expr, id)
 	server.Ok(map[string]interface{}{"message": "Expression added successfully", "id": id, "status": 200}, w)
 }
