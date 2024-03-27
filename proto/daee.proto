@@ -1,0 +1,29 @@
+syntax = "proto3"; // версия proto файлов
+package api; // название пакета
+option go_package = "github.com/rendizi/daee";
+
+//Сообщения для описания запроса на доступность агента
+message AvRequest {}
+// Сообщение для описания результата доступности агента(да/нет)
+message AvResponse {
+  bool result = 1;
+}
+
+//Сообщение для описания запроса на вычисление выражения
+message OpRequest {
+  int64 a = 1;
+  int64 b = 2;
+  string operator = 3;
+  int64 time = 4;
+}
+//Сообщение для описания результата вычисления выражения
+message OpResponse {
+  float result = 1;
+}
+
+// Определение сервиса с двумя методами
+service AgentService {
+  // методы, которые можно будет реализовать и использовать
+  rpc Av (AvRequest) returns (AvResponse);
+  rpc Op (OpRequest) returns (OpResponse);
+}

@@ -1,23 +1,26 @@
 package main
 
 import (
+	"daee/src/API/orkestrator/server/handler"
 	"fmt"
 	"net/http"
 	"os"
 
-	handle "github.com/rendizi/Distributed-arithmetic-expression-evaluator/src/backend/daee/server/handler"
+	"github.com/MadAppGang/httplog"
+)
+
+var (
+	registerHandler http.Handler = http.HandlerFunc(handler.Register)
+	loginHandler    http.Handler = http.HandlerFunc(handler.Login)
 )
 
 func main() {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/expression", handle.Expression)
-	mux.HandleFunc("/operations", handle.Operations)
-	mux.HandleFunc("/reg", handle.Register)
-	mux.HandleFunc("/task", handle.Task)
-	mux.HandleFunc("/machines", handle.Machines)
+	loggerWithFormatter := httplog.LoggerWithFormatter(httplog.DefaultLogFormatterWithRequestHeader)
+	mux.Handle("/register", loggerWithFormatter(registerHandler))
+	mux.Handle("/login", loggerWithFormatter(loginHandler))
 
-	//Для того чтобы отправлять запросы с вебсайта на сервер нужно настроить cors, что тут и делаю
 	corsHandler := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
