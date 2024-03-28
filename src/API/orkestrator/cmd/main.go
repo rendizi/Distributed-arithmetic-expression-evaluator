@@ -13,6 +13,8 @@ var (
 	registerHandler   http.Handler = http.HandlerFunc(handler.Register)
 	loginHandler      http.Handler = http.HandlerFunc(handler.Login)
 	expressionHandler http.Handler = http.HandlerFunc(handler.Expression)
+	agentsHandler     http.Handler = http.HandlerFunc(handler.Agents)
+	operationsHandler http.Handler = http.HandlerFunc(handler.Operations)
 )
 
 func main() {
@@ -22,6 +24,8 @@ func main() {
 	mux.Handle("/register", loggerWithFormatter(registerHandler))
 	mux.Handle("/login", loggerWithFormatter(loginHandler))
 	mux.Handle("/expression", loggerWithFormatter(expressionHandler))
+	mux.Handle("/agents", loggerWithFormatter(agentsHandler))
+	mux.Handle("/operations", loggerWithFormatter(operationsHandler))
 
 	corsHandler := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

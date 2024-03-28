@@ -2,12 +2,12 @@ package distributer
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	pb "github.com/rendizi/daee/proto"
 	"github.com/rendizi/daee/src/API/orkestrator/internal/accessible"
 	"github.com/rendizi/daee/src/API/orkestrator/internal/db"
 	"log"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -15,10 +15,9 @@ import (
 // Данная функция делит выражение на операции и
 // вычесляет их
 func Do(expr db.Expression, id int64) {
-	log.Println("Started")
 	opId, err := db.InsertOperation(expr, id)
 	if err != nil {
-		log.Println(err)
+		return
 	}
 	symbols := strings.Fields(expr.Expression)
 	n := len(symbols) - 1
@@ -27,6 +26,7 @@ func Do(expr db.Expression, id int64) {
 			subResult, err := subSolve(symbols[i-1], symbols[i], symbols[i+1], expr.Settings)
 			if err != nil {
 				db.UpdateResult(opId, id, err.Error())
+				return
 			}
 			symbols[i-1] = subResult
 			symbols = append(symbols[:i], symbols[i+2:]...)
@@ -35,8 +35,8 @@ func Do(expr db.Expression, id int64) {
 			err = db.UpdateOperationState(strings.Join(symbols, " "), opId)
 			if err != nil {
 				db.UpdateResult(opId, id, err.Error())
+				return
 			}
-			log.Println(symbols)
 		}
 	}
 	for i := 1; i < n; i += 2 {
@@ -44,6 +44,7 @@ func Do(expr db.Expression, id int64) {
 			subResult, err := subSolve(symbols[i-1], symbols[i], symbols[i+1], expr.Settings)
 			if err != nil {
 				db.UpdateResult(opId, id, err.Error())
+				return
 			}
 			symbols[i-1] = subResult
 			symbols = append(symbols[:i], symbols[i+2:]...)
@@ -52,23 +53,32 @@ func Do(expr db.Expression, id int64) {
 			err = db.UpdateOperationState(strings.Join(symbols, " "), opId)
 			if err != nil {
 				db.UpdateResult(opId, id, err.Error())
+				return
 			}
-			log.Println(symbols)
 		}
 	}
+	db.DeleteOperation(opId)
 	db.UpdateResult(opId, id, symbols[0])
 }
 
 func subSolve(a, operator, b string, settings db.Settings) (string, error) {
-	inta, _ := strconv.Atoi(a)
-	intb, _ := strconv.Atoi(b)
-	log.Println("before")
+	if b == "0" && operator == "/" {
+		return "", errors.New("Division by zero")
+	}
+
+	inta, err := strconv.ParseFloat(a, 32)
+	if err != nil {
+		log.Println(err, inta)
+	}
+	intb, err := strconv.ParseFloat(b, 32)
+	if err != nil {
+		log.Println(err, intb)
+	}
 	conn := accessible.GetAgent() //Zdes
-	log.Println("after")
 	defer conn.Close()
 	grpcClient := pb.NewAgentServiceClient(conn)
 	time := 0
-	switch b {
+	switch operator {
 	case "+":
 		time = settings.Plus
 	case "-":
@@ -82,13 +92,11 @@ func subSolve(a, operator, b string, settings db.Settings) (string, error) {
 	res, err := grpcClient.Op(context.Background(), &pb.OpRequest{
 		A:        float32(inta),
 		B:        float32(intb),
-		Operator: b,
+		Operator: operator,
 		Time:     int64(time),
 	})
-	log.Println(res.Result)
 	if err != nil {
 		log.Println("failed invoking Area:", err)
-		os.Exit(1)
 	}
 	return fmt.Sprintf("%.2f", res.Result), nil
 }

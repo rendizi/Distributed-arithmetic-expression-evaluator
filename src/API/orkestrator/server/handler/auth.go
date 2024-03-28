@@ -54,7 +54,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	//генерируем новый токен, через который можно будет получить логин
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"login": creds.Login,
-		"exp":   time.Now().Add(5 * time.Minute).Unix(),
+		"exp":   time.Now().Add(15 * time.Minute).Unix(),
 	})
 	tokenString, err := token.SignedString(jwtSecret)
 	if err != nil {

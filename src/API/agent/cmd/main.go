@@ -7,8 +7,8 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net"
-	"os"
 	"sync"
+	"time"
 )
 
 type Server struct {
@@ -42,9 +42,8 @@ func (s *Server) Op(
 	ctx context.Context,
 	in *pb.OpRequest,
 ) (*pb.OpResponse, error) {
-	log.Println("invoked Perimeter: ", in)
-	// вычислим периметр и вернём ответ
 	s.mu.Lock()
+	s.busy = !s.busy
 	defer s.mu.Unlock()
 	var res float32
 	switch in.Operator {
@@ -61,6 +60,8 @@ func (s *Server) Op(
 			res = in.A / in.B
 		}
 	}
+	time.Sleep(time.Duration(in.Time) * time.Second)
+	s.busy = !s.busy
 	return &pb.OpResponse{
 		Result: res,
 	}, nil
@@ -72,11 +73,10 @@ func createAgent(port int) (*grpc.Server, net.Listener) {
 
 	if err != nil {
 		log.Println("error starting tcp listener: ", err)
-		os.Exit(1)
+		return nil, nil
 	}
 
 	log.Println("tcp listener started at port: ", port)
-	// создадим сервер grpc
 	grpcServer := grpc.NewServer()
 	// объект структуры, которая содержит реализацию
 	// серверной части GeometryService
@@ -98,7 +98,6 @@ func main() {
 		go func() {
 			if err := grpcServer.Serve(lis); err != nil {
 				log.Println("error serving grpc: ", err)
-				os.Exit(1)
 			}
 		}()
 	}

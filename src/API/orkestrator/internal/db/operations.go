@@ -1,5 +1,13 @@
 package db
 
+import "database/sql"
+
+type OperationJSON struct {
+	Id        int    `json:"id"`
+	Operation string `json:"operation"`
+	Result    string `json:"result"`
+}
+
 //CREATE TABLE IF NOT EXISTS operations (
 //			id SERIAL PRIMARY KEY,
 //			operation TEXT NOT NULL,
@@ -37,20 +45,52 @@ func UpdateOperationState(operation string, opid int64) error {
 	return nil
 }
 
-func UpdateResult(opid, id int64, errr string) error {
-	query := "UPDATE operations SET result = $1 WHERE id = $2"
-
-	_, err := db.Exec(query, errr, opid)
+func DeleteOperation(id int64) error {
+	stmt, err := db.Prepare("DELETE FROM operations WHERE id = $1")
 	if err != nil {
 		return err
 	}
-
-	query = "UPDATE expressions SET result = $1 WHERE id = $2"
-
-	_, err = db.Exec(query, errr, id)
+	defer stmt.Close()
+	_, err = stmt.Exec(id)
 	if err != nil {
 		return err
 	}
-
 	return nil
+}
+
+func GetOperations() ([]int, []string, []string, error) {
+	query := "SELECT id,operation,result FROM operations"
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	defer rows.Close()
+
+	// Store the expressions
+	operations := []string{}
+	results := []string{}
+	ids := []int{}
+	for rows.Next() {
+		var expression string
+		var id int
+		var result sql.NullString
+		err = rows.Scan(&id, &expression, &result)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		operations = append(operations, expression)
+		ids = append(ids, id)
+		if result.Valid {
+			results = append(results, result.String)
+		} else {
+			results = append(results, "In progress...")
+		}
+	}
+
+	// Check for errors during row iteration
+	if err = rows.Err(); err != nil {
+		return nil, nil, nil, err
+	}
+
+	return ids, operations, results, nil
 }

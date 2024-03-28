@@ -58,6 +58,8 @@ func init() {
     		expression TEXT NOT NULL,
     		settings TEXT NOT NULL,
     		result TEXT,
+    		createdAt TEXT NOT NULL,
+    		endTime TEXT,
     		user_id INTEGER NOT NULL,
     		FOREIGN KEY (user_id) REFERENCES users(id)
 );

@@ -7,19 +7,29 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
+	"sync"
 	"time"
 )
 
 type Agent struct {
 	Addr     string
-	LastPing time.Duration
+	LastPing string
 	IsBusy   bool
+	m        sync.Mutex
+}
+
+type AgentJson struct {
+	Addr     string `json:"address"`
+	IsBusy   bool   `json:"is_busy"`
+	LastPing string `json:"last_ping"`
 }
 
 func newAgent(addr string) Agent {
 	return Agent{
-		Addr:   addr,
-		IsBusy: false,
+		Addr:     addr,
+		LastPing: time.Now().Format("2006-01-02 15:04:05"),
+		IsBusy:   false,
+		m:        sync.Mutex{},
 	}
 }
 
@@ -48,28 +58,32 @@ func findAvailableAgent() *grpc.ClientConn {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	for _, agent := range Agents {
-		log.Println(agent)
+	for i := range Agents {
+		agent := &Agents[i]
+		agent.m.Lock()
 		go func(addr string) {
-			conn, err := ping(addr)
+			conn, err := Ping(addr)
+			agent.LastPing = time.Now().Format("2006-01-02 15:04:05")
+			log.Println(agent.LastPing)
 			if err == nil {
 				ch <- conn
 				cancel()
+			} else {
+				agent.IsBusy = true
 			}
 		}(agent.Addr)
+		agent.m.Unlock()
 	}
 
-	// Wait for any of the goroutines to finish
 	select {
 	case conn := <-ch:
 		return conn
 	case <-ctx.Done():
-		log.Println("No accessible agents")
 		return nil
 	}
 }
 
-func ping(addr string) (*grpc.ClientConn, error) {
+func Ping(addr string) (*grpc.ClientConn, error) {
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, errors.New("failed to dial grpc server")
@@ -82,6 +96,5 @@ func ping(addr string) (*grpc.ClientConn, error) {
 	if av.Result {
 		return conn, nil
 	}
-	log.Println(addr, "Addr is busy")
 	return nil, errors.New("agent is busy")
 }

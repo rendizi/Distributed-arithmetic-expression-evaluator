@@ -1,0 +1,254 @@
+:root {
+  --glow-rgb: 245 245 245;
+  
+  --light-gold-rgb: 249 181 51;
+  --dark-gold-rgb: 215 147 23;
+  
+  --primary-stripe-rgb: 230 230 230;
+  --secondary-stripe-rgb: 240 240 240;
+}
+/* cursor */
+body {
+  background-color: black;
+  overflow: hidden;
+  overflow-y: scroll;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+@keyframes pan {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 100% 0%;
+  }
+}
+
+#app {
+  height: 100vh;
+   overflow: hidden;
+  position: relative;
+}
+
+#star-container {
+  background: radial-gradient(rgb(var(--light-gold-rgb)), rgb(var(--dark-gold-rgb)));
+  height: 100%;  
+  overflow: hidden;
+  position: relative;
+}
+
+#star-pattern {
+  background-image: url("https://assets.codepen.io/1468070/Star+Pattern+3.svg");
+  background-size: 10%;  
+  position: absolute;
+  left: 50%;
+  top: 0px;
+  translate: -50% 0%;
+  z-index: 1;
+  height: 100%;
+  width: 100%;
+  min-width: 1200px;
+  opacity: 0.10;
+  animation: pan 180s linear infinite;
+  will-change: background-position;
+}
+
+#star-gradient-overlay {
+  background: radial-gradient(circle, transparent 75%, rgb(var(--dark-gold-rgb)));
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  opacity: 0.9;
+  z-index: 2;
+}
+
+
+@keyframes fall-1 {
+  0% {
+    transform: translate(0px, 0px) rotateX(45deg) rotateY(30deg) rotateZ(0deg) scale(0.25);
+    opacity: 0;
+  }
+  
+  5% {
+    transform: translate(10px, -10px) rotateX(45deg) rotateY(30deg) rotateZ(0deg) scale(1);
+    opacity: 1;
+  }
+  
+  100% {
+    transform: translate(25px, 200px) rotateX(180deg) rotateY(270deg) rotateZ(90deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes fall-2 {
+  0% {
+    transform: translate(0px, 0px) rotateX(-20deg) rotateY(10deg) scale(0.25);
+    opacity: 0;
+  }
+  
+  10% {
+    transform: translate(-10px, -5px) rotateX(-20deg) rotateY(10deg) scale(1);
+    opacity: 1;
+  }
+  
+  100% {
+    transform: translate(-10px, 160px) rotateX(-90deg) rotateY(45deg) scale(0.25);
+    opacity: 0;
+  }
+}
+
+@keyframes fall-3 {
+  0% {
+    transform: translate(0px, 0px) rotateX(0deg) rotateY(45deg) scale(0.5);
+    opacity: 0;
+  }
+  
+  15% {
+    transform: translate(7px, 5px) rotateX(0deg) rotateY(45deg) scale(1);
+    opacity: 1;
+  }
+  
+  100% {
+    transform: translate(20px, 120px) rotateX(-180deg) rotateY(-90deg) scale(0.5);
+    opacity: 0;
+  }
+}
+
+nav {
+  display: flex;
+  justify-content: flex-start; /* Align items to the left */
+  align-items: center; /* Align items vertically */
+  padding: 10px; /* Add some padding for spacing */
+  background: white;
+}
+
+nav a {
+  margin-right: 10px; /* Add margin to separate the links */
+  text-decoration: none; /* Remove default underline */
+  color: #333; /* Dark gray color */
+  font-weight: bold; /* Bold font weight */
+  padding: 8px 12px; /* Add padding */
+  border-radius: 5px; /* Rounded corners */
+  transition: background-color 0.3s ease; /* Smooth transition on hover */
+}
+
+nav a:hover {
+  background-color: #ddd; /* Light gray background on hover */
+}
+
+
+nav input[type="text"] {
+  margin-left: auto; /* Push input to the right */
+  padding: 8px 12px; /* Adjust padding for input */
+  border: 2px solid #ccc; /* Add a border */
+  border-radius: 5px; /* Add border radius for rounded corners */
+  font-size: 16px; /* Adjust font size */
+}
+
+nav input[type="text"]:focus {
+  outline: none; /* Remove default focus outline */
+  border-color: #e39f22; /* Change border color on focus */
+}
+
+nav button {
+  padding: 8px 12px; /* Adjust padding for button */
+  margin-left: 50px;
+  border: none; /* Remove button border */
+  background-color: #e39f21; /* Button background color */
+  color: white; /* Button text color */
+  border-radius: 5px; /* Add border radius for rounded corners */
+  cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+
+
+
+
+
+.default {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid #fff; 
+  border-radius: 10px; 
+  z-index: 3;
+}
+
+.default--submit{
+  width: 50%;
+  padding: 10px;
+  border-radius: 5px;
+  color: white;
+  background-color: #e39f22;
+  border: none;   
+  cursor: pointer; 
+}
+
+.expression {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  z-index: 3;
+  background-color: white;
+  width: 600px;
+  padding: 20px;
+  margin-bottom: 20px; 
+}
+
+.icon-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.icon {
+  margin-right: 10px;
+  font-size: 24px;
+}
+
+.label {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.expression-content {
+  text-align: center;
+}
+
+.expression-text {
+  font-size: 20px;
+}
+
+.expression-result {
+  font-size: 16px;
+  color: #333;
+}
+
+.expression-time {
+  font-size: 14px;
+  color: #999;
+}
+
+.expressions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(1000px, 1fr)); 
+  grid-gap: 20px; /* Adjust the gap between columns */
+  overflow-y: scroll;
+}
