@@ -84,12 +84,12 @@ function Auth() {
 
     function handleSubmit(event) {
         event.preventDefault();
-        register(); // Register the user first
+        register(); 
     }
 
     function handleLogin(event) {
         event.preventDefault();
-        login(); // Then login
+        login(); 
     }
 
     return (

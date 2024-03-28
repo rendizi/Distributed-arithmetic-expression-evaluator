@@ -1,5 +1,5 @@
 import React from "react";
-import { FaCalculator, FaEquals } from 'react-icons/fa'; // Updated import with FaEquals for result icon
+import { FaCalculator, FaEquals } from 'react-icons/fa'; 
 
 
 function Operation(props){

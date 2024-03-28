@@ -76,6 +76,6 @@ body {
 }
 
 .form--settings input {
-    width: calc(30% - 10px); /* Adjusted width */
-    padding: 5px; /* Adjusted padding */
+    width: calc(30% - 10px); 
+    padding: 5px; 
 }

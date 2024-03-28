@@ -1,4 +1,4 @@
-import { FaCalculator, FaEquals, FaClock } from 'react-icons/fa'; // Updated import with FaEquals for result icon
+import { FaCalculator, FaEquals, FaClock } from 'react-icons/fa'; 
 
 
 function Expression(props) {
