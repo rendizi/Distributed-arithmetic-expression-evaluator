@@ -2,9 +2,9 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/rendizi/daee/src/API/orkestrator/internal/db"
-	"github.com/rendizi/daee/src/API/orkestrator/internal/distributer"
-	"github.com/rendizi/daee/src/API/orkestrator/server"
+	"github.com/rendizi/daee/code/API/orkestrator/internal/db"
+	"github.com/rendizi/daee/code/API/orkestrator/internal/distributer"
+	"github.com/rendizi/daee/code/API/orkestrator/server"
 	"log"
 	"net/http"
 	"strconv"

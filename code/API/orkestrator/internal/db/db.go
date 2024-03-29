@@ -4,12 +4,13 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	_ "github.com/lib/pq"
 )
 
 const (
-	host     = "localhost"
+	host     = "composepostgres"
 	port     = 5432
 	user     = "postgres"
 	password = "1"
@@ -20,6 +21,7 @@ var db *sql.DB
 
 func init() {
 	//creating db
+	time.Sleep(10 * time.Second)
 	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 
