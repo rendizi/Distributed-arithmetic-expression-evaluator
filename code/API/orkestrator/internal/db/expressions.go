@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// структура для настроек
 type Settings struct {
 	Plus  int `json:"plus"`
 	Minus int `json:"minus"`
@@ -14,11 +15,13 @@ type Settings struct {
 	Div   int `json:"div"`
 }
 
+// структура для expression
 type Expression struct {
 	Expression string   `json:"expression"`
 	Settings   Settings `json:"settings"`
 }
 
+// json структура для выражений
 type ExpressionJSON struct {
 	Id         int    `json:"id"`
 	Expression string `json:"expression"`
@@ -34,21 +37,23 @@ type ExpressionJSON struct {
 ////    FOREIGN KEY (user_id) REFERENCES users(id)
 ////);
 
+// Функция для добавления нового выражения в бд .
+// На вход берем структуру выражения и логин автора
 func InsertExpression(expression Expression, authorLogin string) (int64, error) {
-	// Retrieve user ID based on login
 	var userID int64
+	//Берем айди где логин = authorLogin
 	err := db.QueryRow("SELECT id FROM users WHERE login = $1", authorLogin).Scan(&userID)
 	if err != nil {
 		return 0, err
 	}
 
-	// Marshal settings to JSON
+	// Маршалим настройки
 	settingsJSON, err := json.Marshal(expression.Settings)
 	if err != nil {
 		return 0, err
 	}
 
-	// Prepare the insert query
+	//Вставляем в бд полученные данные
 	query := `INSERT INTO expressions (expression, settings,createdAt, user_id) VALUES ($1, $2, $3,$4) RETURNING id`
 	stmt, err := db.Prepare(query)
 	if err != nil {
@@ -56,16 +61,11 @@ func InsertExpression(expression Expression, authorLogin string) (int64, error) 
 	}
 	defer stmt.Close()
 
-	currentTime := time.Now()
+	//Берем куррент время
+	formattedTime := time.Now().Format("2006-01-02 15:04:05")
 
-	// Define the layout for date and time only
-	layout := "2006-01-02 15:04:05"
-
-	// Format the current time using the layout
-	formattedTime := currentTime.Format(layout)
-
-	// Execute the insert query and get the inserted ID
 	var id int64
+
 	err = stmt.QueryRow(expression.Expression, string(settingsJSON), formattedTime, userID).Scan(&id)
 	if err != nil {
 		return 0, err
@@ -74,8 +74,10 @@ func InsertExpression(expression Expression, authorLogin string) (int64, error) 
 	return id, nil
 }
 
+// Функция для получения выражения по айди и логину автора
 func GetExpression(id int, authorLogin string) (string, string, error) {
 	var userID int64
+	//Находим айди юзера по его логину
 	err := db.QueryRow("SELECT id FROM users WHERE login = $1", authorLogin).Scan(&userID)
 	if err != nil {
 		return "", "", err
@@ -83,19 +85,21 @@ func GetExpression(id int, authorLogin string) (string, string, error) {
 
 	var expression string
 	var result sql.NullString
+	//Берем выражения и результат .
+	//Результат может быть Null
 	err = db.QueryRow(`SELECT expression,result FROM expressions WHERE id = $1 and user_id = $2`, id, userID).Scan(&expression, &result)
 	if err != nil {
 		return "", "", err
 	}
 	if result.Valid {
-		// result is not null
+		// результат не нулл
 		return expression, result.String, nil
 	} else {
-		// result is null
 		return expression, "In progress...", nil
 	}
 }
 
+// Получение всех выражений юзера
 func GetExpressions(authorLogin string) ([]int, []string, []string, error) {
 	var userID int64
 	err := db.QueryRow("SELECT id FROM users WHERE login = $1", authorLogin).Scan(&userID)
@@ -109,7 +113,6 @@ func GetExpressions(authorLogin string) ([]int, []string, []string, error) {
 	}
 	defer rows.Close()
 
-	// Store the expressions
 	expressions := []string{}
 	results := []string{}
 	ids := []int{}
@@ -130,7 +133,6 @@ func GetExpressions(authorLogin string) ([]int, []string, []string, error) {
 		}
 	}
 
-	// Check for errors during row iteration
 	if err = rows.Err(); err != nil {
 		return nil, nil, nil, err
 	}
@@ -141,11 +143,7 @@ func GetExpressions(authorLogin string) ([]int, []string, []string, error) {
 func UpdateResult(opid, id int64, errr string) error {
 	currentTime := time.Now()
 	query := "UPDATE expressions SET result = $1 , endTime = $2 WHERE id = $3"
-
-	// Define the layout for date and time only
 	layout := "2006-01-02 15:04:05"
-
-	// Format the current time using the layout
 	formattedTime := currentTime.Format(layout)
 
 	_, err := db.Exec(query, errr, formattedTime, id)

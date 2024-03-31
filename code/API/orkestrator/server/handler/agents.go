@@ -14,6 +14,7 @@ func Agents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//проходимся по всем агентам и проверяем их доступность
 	var responseAgents []accessible.AgentJson
 	for _, agent := range accessible.Agents {
 		_, err := accessible.Ping(agent.Addr)
@@ -26,6 +27,7 @@ func Agents(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	//маршалим и возвращаем
 	responseJSON, err := json.Marshal(responseAgents)
 	if err != nil {
 		fmt.Println("Error marshaling JSON:", err)

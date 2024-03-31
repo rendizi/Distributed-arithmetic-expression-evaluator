@@ -24,7 +24,6 @@ func InsertOperation(expression Expression, id int64) (int64, error) {
 	}
 	defer stmt.Close()
 
-	// Execute the insert query and get the inserted ID
 	var opid int64
 	err = stmt.QueryRow(expression.Expression, id).Scan(&opid)
 	if err != nil {
@@ -66,7 +65,6 @@ func GetOperations() ([]int, []string, []string, error) {
 	}
 	defer rows.Close()
 
-	// Store the expressions
 	operations := []string{}
 	results := []string{}
 	ids := []int{}
@@ -87,7 +85,6 @@ func GetOperations() ([]int, []string, []string, error) {
 		}
 	}
 
-	// Check for errors during row iteration
 	if err = rows.Err(); err != nil {
 		return nil, nil, nil, err
 	}

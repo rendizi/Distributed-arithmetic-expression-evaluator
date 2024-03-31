@@ -18,8 +18,10 @@ var (
 )
 
 func main() {
+	//mux нам нужен для cors
 	mux := http.NewServeMux()
 
+	//loggerWithFormatter - красивый логгер запросов
 	loggerWithFormatter := httplog.LoggerWithFormatter(httplog.DefaultLogFormatterWithRequestHeader)
 	mux.Handle("/register", loggerWithFormatter(registerHandler))
 	mux.Handle("/login", loggerWithFormatter(loginHandler))
@@ -27,6 +29,7 @@ func main() {
 	mux.Handle("/agents", loggerWithFormatter(agentsHandler))
 	mux.Handle("/operations", loggerWithFormatter(operationsHandler))
 
+	//устанавливаем cors
 	corsHandler := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -40,6 +43,7 @@ func main() {
 		})
 	}
 
+	//слушаем на порту 8080
 	err := http.ListenAndServe(":8080", corsHandler(mux))
 	if err != nil {
 		if err == http.ErrServerClosed {

@@ -9,6 +9,7 @@ import (
 
 var jwtSecret = []byte("secret_key")
 
+// Json со статусом 400
 func Error(data map[string]interface{}, w http.ResponseWriter) {
 	jsonResponse, err := json.Marshal(data)
 	if err != nil {
@@ -20,6 +21,7 @@ func Error(data map[string]interface{}, w http.ResponseWriter) {
 	return
 }
 
+// Json со статусом ok
 func Ok(data map[string]interface{}, w http.ResponseWriter) {
 	jsonResponse, err := json.Marshal(data)
 	if err != nil {
@@ -31,6 +33,7 @@ func Ok(data map[string]interface{}, w http.ResponseWriter) {
 	return
 }
 
+// Берем логин из Auth token
 func GetLogin(w http.ResponseWriter, r *http.Request) string {
 	tokenString := r.Header.Get("Authorization")
 	if tokenString == "" {

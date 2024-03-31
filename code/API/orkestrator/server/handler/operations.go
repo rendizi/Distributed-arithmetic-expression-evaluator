@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+//Здесь тоже самое что и в ./expression.go
+
 func Operations(w http.ResponseWriter, r *http.Request) {
 	ids, operations, results, err := db.GetOperations()
 	if err != nil {

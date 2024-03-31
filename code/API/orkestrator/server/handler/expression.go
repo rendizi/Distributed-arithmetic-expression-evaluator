@@ -21,12 +21,17 @@ func Expression(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetExpression(w http.ResponseWriter, r *http.Request) {
+	//берем айди. Если есть айди- ищем в бд данное выражение,
+	//иначе все выражения
 	expId := r.URL.Query().Get("id")
 	if len(expId) == 0 {
+		//из JWT ключа берем логин
 		login := server.GetLogin(w, r)
+		//если нет логина то просто возвращаем, ошибка обрабатывается в функции
 		if login == "" {
 			return
 		}
+		//берем выражения
 		ids, expressions, results, err := db.GetExpressions(login)
 		if err != nil {
 			server.Error(map[string]interface{}{"message": err.Error(), "status": 400}, w)
@@ -37,6 +42,7 @@ func GetExpression(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		//изменияем время
 		var expressionsJSON []db.ExpressionJSON
 		for i := 0; i < len(expressions); i++ {
 			time, err := db.Time(int64(ids[i]))
@@ -52,6 +58,7 @@ func GetExpression(w http.ResponseWriter, r *http.Request) {
 			expressionsJSON = append(expressionsJSON, expressionJSON)
 		}
 
+		//маршаллим и возвращаем
 		jsonData, err := json.Marshal(expressionsJSON)
 		if err != nil {
 			server.Error(map[string]interface{}{"message": err.Error(), "status": 400}, w)
@@ -62,6 +69,7 @@ func GetExpression(w http.ResponseWriter, r *http.Request) {
 		w.Write(jsonData)
 		return
 	}
+	//Берем выражение по конкретному id
 	intExpId, err := strconv.Atoi(expId)
 	if err != nil {
 		server.Error(map[string]interface{}{"message": "Invalid id", "status": 400}, w)
@@ -72,11 +80,13 @@ func GetExpression(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	exp, res, err := db.GetExpression(intExpId, login)
+	//берем время
 	time, _ := db.Time(int64(intExpId))
 	if err != nil {
 		server.Error(map[string]interface{}{"message": err.Error(), "status": 400}, w)
 		return
 	}
+	//возвращаем json
 	server.Ok(map[string]interface{}{"expression": exp, "result": res, "time": time}, w)
 }
 
