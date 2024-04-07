@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/rendizi/daee/code/API/orkestrator/internal/accessible"
-	"github.com/rendizi/daee/code/API/orkestrator/internal/db"
-	"github.com/rendizi/daee/code/proto"
+	"github.com/rendizi/daee/internal/accessible"
+	db2 "github.com/rendizi/daee/internal/db"
+	"github.com/rendizi/daee/proto"
 	"log"
 	"strconv"
 	"strings"
@@ -21,9 +21,9 @@ import (
 //   - Ждем ответа и заменяем 3 значение- a+b на result
 //   - Проходимся по + и - с той же логикой
 //   - Возвращаем единственное оставшиеся число- arr[0]
-func Do(expr db.Expression, id int64) {
+func Do(expr db2.Expression, id int64) {
 	//добавляем операцию в бд
-	opId, err := db.InsertOperation(expr, id)
+	opId, err := db2.InsertOperation(expr, id)
 	if err != nil {
 		return
 	}
@@ -36,7 +36,7 @@ func Do(expr db.Expression, id int64) {
 			subResult, err := subSolve(symbols[i-1], symbols[i], symbols[i+1], expr.Settings)
 			if err != nil {
 				//если ошибка то так и записываем в бд и выходим
-				db.UpdateResult(opId, id, err.Error())
+				db2.UpdateResult(opId, id, err.Error())
 				return
 			}
 			//вставляем результат в []string
@@ -45,9 +45,9 @@ func Do(expr db.Expression, id int64) {
 			n -= 2
 			i -= 2
 			//Обновляем операцию
-			err = db.UpdateOperationState(strings.Join(symbols, " "), opId)
+			err = db2.UpdateOperationState(strings.Join(symbols, " "), opId)
 			if err != nil {
-				db.UpdateResult(opId, id, err.Error())
+				db2.UpdateResult(opId, id, err.Error())
 				return
 			}
 		}
@@ -56,26 +56,26 @@ func Do(expr db.Expression, id int64) {
 		if symbols[i] == "+" || symbols[i] == "-" {
 			subResult, err := subSolve(symbols[i-1], symbols[i], symbols[i+1], expr.Settings)
 			if err != nil {
-				db.UpdateResult(opId, id, err.Error())
+				db2.UpdateResult(opId, id, err.Error())
 				return
 			}
 			symbols[i-1] = subResult
 			symbols = append(symbols[:i], symbols[i+2:]...)
 			n -= 2
 			i -= 2
-			err = db.UpdateOperationState(strings.Join(symbols, " "), opId)
+			err = db2.UpdateOperationState(strings.Join(symbols, " "), opId)
 			if err != nil {
-				db.UpdateResult(opId, id, err.Error())
+				db2.UpdateResult(opId, id, err.Error())
 				return
 			}
 		}
 	}
 	//удаляем операцию и обновляем результат выражения
-	db.DeleteOperation(opId)
-	db.UpdateResult(opId, id, symbols[0])
+	db2.DeleteOperation(opId)
+	db2.UpdateResult(opId, id, symbols[0])
 }
 
-func subSolve(a, operator, b string, settings db.Settings) (string, error) {
+func subSolve(a, operator, b string, settings db2.Settings) (string, error) {
 	if b == "0" && operator == "/" {
 		return "", errors.New("Division by zero")
 	}
@@ -107,7 +107,7 @@ func subSolve(a, operator, b string, settings db.Settings) (string, error) {
 	}
 
 	//Вычисляем выражение
-	res, err := grpcClient.Op(context.Background(), &daee.OpRequest{
+	res, err := grpcClient.Op(context.Background(), &daee.daee{
 		A:        float32(inta),
 		B:        float32(intb),
 		Operator: operator,

@@ -3,8 +3,8 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/rendizi/daee/code/API/orkestrator/internal/accessible"
-	"github.com/rendizi/daee/code/API/orkestrator/server"
+	"github.com/rendizi/daee/internal/accessible"
+	"github.com/rendizi/daee/server"
 	"net/http"
 )
 

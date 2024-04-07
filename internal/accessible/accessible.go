@@ -3,7 +3,7 @@ package accessible
 import (
 	"context"
 	"errors"
-	"github.com/rendizi/daee/code/proto"
+	"github.com/rendizi/daee/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"sync"
@@ -96,7 +96,7 @@ func Ping(addr string) (*grpc.ClientConn, error) {
 		return nil, errors.New("failed to dial grpc server")
 	}
 	grpcClient := daee.NewAgentServiceClient(conn)
-	av, err := grpcClient.Av(context.Background(), &daee.AvRequest{})
+	av, err := grpcClient.Av(context.Background(), &daee.daee{})
 	if err != nil {
 		return nil, errors.New("failed to check availability with Av RPC")
 	}

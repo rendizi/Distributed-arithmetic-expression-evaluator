@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/rendizi/daee/code/API/orkestrator/server/handler"
+	handler2 "github.com/rendizi/daee/server/handler"
 	"net/http"
 	"os"
 
@@ -10,11 +10,11 @@ import (
 )
 
 var (
-	registerHandler   http.Handler = http.HandlerFunc(handler.Register)
-	loginHandler      http.Handler = http.HandlerFunc(handler.Login)
-	expressionHandler http.Handler = http.HandlerFunc(handler.Expression)
-	agentsHandler     http.Handler = http.HandlerFunc(handler.Agents)
-	operationsHandler http.Handler = http.HandlerFunc(handler.Operations)
+	registerHandler   http.Handler = http.HandlerFunc(handler2.Register)
+	loginHandler      http.Handler = http.HandlerFunc(handler2.Login)
+	expressionHandler http.Handler = http.HandlerFunc(handler2.Expression)
+	agentsHandler     http.Handler = http.HandlerFunc(handler2.Agents)
+	operationsHandler http.Handler = http.HandlerFunc(handler2.Operations)
 )
 
 func main() {

@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/rendizi/daee/code/proto"
+	"github.com/rendizi/daee/proto"
 	"google.golang.org/grpc"
 	"log"
 	"net"

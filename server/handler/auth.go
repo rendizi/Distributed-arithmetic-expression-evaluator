@@ -2,8 +2,8 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/rendizi/daee/code/API/orkestrator/internal/db"
-	"github.com/rendizi/daee/code/API/orkestrator/server"
+	"github.com/rendizi/daee/internal/db"
+	"github.com/rendizi/daee/server"
 	"net/http"
 	"time"
 
