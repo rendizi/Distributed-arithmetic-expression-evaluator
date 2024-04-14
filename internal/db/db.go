@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	host     = "postgres"
+	host     = "localhost"
 	port     = 5432
 	user     = "postgres"
 	password = "1"
@@ -21,7 +21,7 @@ var db *sql.DB
 
 func Init() {
 	//creating db
-	time.Sleep(10 * time.Second)
+	time.Sleep(1 * time.Second)
 	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 
