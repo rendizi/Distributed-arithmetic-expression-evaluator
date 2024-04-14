@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"context"
@@ -77,6 +77,7 @@ func (s *Server) Op(
 	defer s.mu.Unlock()
 	var res float32
 	//делаем действия в зависимости от оператора
+	log.Println(in.A, in.Operator, in.B)
 	switch in.Operator {
 	case "+":
 		res = in.A + in.B
@@ -97,6 +98,7 @@ func (s *Server) Op(
 	}
 	//спим необходимое время
 	time.Sleep(time.Duration(in.Time) * time.Second)
+	log.Println(res)
 	//теперь агент не занят
 	s.busy = !s.busy
 	return &daee.OpResponse{
@@ -124,7 +126,8 @@ func createAgent(port int) (*grpc.Server, net.Listener) {
 	return grpcServer, lis
 }
 
-func main() {
+func Main() {
+	log.Println("Agent is running")
 	var wg sync.WaitGroup
 	port := 5000
 	i := 0

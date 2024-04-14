@@ -1,8 +1,10 @@
-package main
+package orkestrator
 
 import (
 	"fmt"
+	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/internal/db"
 	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/internal/handler"
+	"log"
 	"net/http"
 	"os"
 
@@ -17,7 +19,9 @@ var (
 	operationsHandler http.Handler = http.HandlerFunc(handler.Operations)
 )
 
-func main() {
+func Main() {
+	db.Init()
+	log.Println("Orkestrator is running")
 	//mux нам нужен для cors
 	mux := http.NewServeMux()
 

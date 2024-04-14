@@ -6,6 +6,7 @@ import (
 	daee "github.com/rendizi/Distributed-arithmetic-expression-evaluator/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"log"
 	"sync"
 	"time"
 )
@@ -50,7 +51,10 @@ func GetAgent() *grpc.ClientConn {
 		select {
 		//каждую секунду ищет и возвращает соединение с агентом
 		case <-time.After(1 * time.Second):
-			if conn := findAvailableAgent(); conn != nil {
+			log.Println("In search...")
+			conn := findAvailableAgent()
+			if conn != nil {
+				log.Println("Connection found")
 				return conn
 			}
 		}
@@ -63,17 +67,21 @@ func findAvailableAgent() *grpc.ClientConn {
 	defer cancel()
 
 	//запускаем цикл по всем агентам и проверяем доступны ли они
+	log.Println(Agents)
 	for i := range Agents {
 		agent := &Agents[i]
 		agent.m.Lock()
 		go func(addr string) {
+			log.Println("Pinging ", addr)
 			conn, err := Ping(addr)
 			//заодно обновляем его last ping
 			agent.LastPing = time.Now().Format("2006-01-02 15:04:05")
+			log.Println("there")
 			if err == nil {
 				ch <- conn
 				cancel()
 			} else {
+				log.Println(err)
 				agent.IsBusy = true
 			}
 		}(agent.Addr)
@@ -93,13 +101,16 @@ func Ping(addr string) (*grpc.ClientConn, error) {
 	//Если av.Result- false, значит агент занят
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
+		log.Println(err)
 		return nil, errors.New("failed to dial grpc server")
 	}
 	grpcClient := daee.NewAgentServiceClient(conn)
 	av, err := grpcClient.Av(context.Background(), &daee.AvRequest{})
 	if err != nil {
+		log.Println(err)
 		return nil, errors.New("failed to check availability with Av RPC")
 	}
+	log.Println(av.Result)
 	if av.Result {
 		return conn, nil
 	}

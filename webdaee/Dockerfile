@@ -1,24 +1,17 @@
-FROM golang:latest AS builder
+FROM node:18-alpine
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
+COPY package.json .
 
-RUN go mod download
+RUN apk add --update nodejs npm
+
+RUN npm install
+
+RUN npm install @fortawesome/react-fontawesome @fortawesome/free-solid-svg-icons orbit-space react-typed react-router-dom
 
 COPY . .
 
-# Build the binary
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
+EXPOSE 3000
 
-FROM alpine:latest
-
-RUN apk --no-cache add ca-certificates
-
-WORKDIR /root/
-
-COPY --from=builder /app/app .
-COPY --from=builder /app/.env .
-COPY --from=builder /app/main.go .  # Copy main.go from the builder stage
-
-CMD ["./app"]
+CMD ["npm", "start"]

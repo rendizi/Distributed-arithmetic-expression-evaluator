@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	host     = "composepostgres"
+	host     = "postgres"
 	port     = 5432
 	user     = "postgres"
 	password = "1"
@@ -19,7 +19,7 @@ const (
 
 var db *sql.DB
 
-func init() {
+func Init() {
 	//creating db
 	time.Sleep(10 * time.Second)
 	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",

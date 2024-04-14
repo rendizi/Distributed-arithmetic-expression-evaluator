@@ -2,29 +2,30 @@ version: '3'
 
 services:
   postgres:
-    container_name: composepostgres
     image: postgres:latest
-    restart: always
     environment:
-      POSTGRES_DB: daee
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1
-      PGDATA: /var/lib/postgresql/data
+      POSTGRES_DB: daee
     ports:
-      - "5430:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-q", "-d", "daee", "-U", "postgres"]
-      interval: 5s
-      retries: 5
+      - "5432:5432"
 
-  backend:
+  orchestrator:
     build: .
     ports:
-      - "2999:8081"
+      - "8080:8080"
     depends_on:
       - postgres
+    environment:
+      - EM=O
+  agent:
+    build: .
+    ports:
+      - "5000:5004"
+    depends_on:
+      - postgres
+    environment:
+      - EM=A
   frontend:
     container_name: frontend
     image: frontend

@@ -92,8 +92,11 @@ func subSolve(a, operator, b string, settings db2.Settings) (string, error) {
 
 	//Находим доступного агента
 	conn := accessible.GetAgent()
+	log.Println("before")
 	defer conn.Close()
+	log.Println("after")
 	grpcClient := daee.NewAgentServiceClient(conn)
+	log.Println("connrected")
 	time := 0
 	switch operator {
 	case "+":

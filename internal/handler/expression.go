@@ -2,9 +2,9 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/rendizi/daee/internal/db"
-	"github.com/rendizi/daee/internal/distributer"
-	"github.com/rendizi/daee/internal/server"
+	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/internal/db"
+	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/internal/distributer"
+	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/internal/server"
 	"log"
 	"net/http"
 	"strconv"
