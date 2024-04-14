@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/rendizi/daee/internal/accessible"
-	"github.com/rendizi/daee/server"
+	"github.com/rendizi/daee/internal/server"
 	"net/http"
 )
 

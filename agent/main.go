@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/rendizi/daee/proto"
+	daee "github.com/rendizi/Distributed-arithmetic-expression-evaluator/proto"
 	"google.golang.org/grpc"
 	"log"
 	"net"

@@ -19,12 +19,18 @@ services:
       interval: 5s
       retries: 5
 
-  web:
+  backend:
     build: .
     ports:
       - "2999:8081"
     depends_on:
       - postgres
+  frontend:
+    container_name: frontend
+    image: frontend
+    build: webdaee/
+    ports:
+      - "3000:3000"
 
 volumes:
   pgdata:

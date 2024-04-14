@@ -1,4 +1,4 @@
-module github.com/rendizi/daee
+module github.com/rendizi/Distributed-arithmetic-expression-evaluator
 
 go 1.21.4
 

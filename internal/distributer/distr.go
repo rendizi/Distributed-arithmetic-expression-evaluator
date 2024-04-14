@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/rendizi/daee/internal/accessible"
-	db2 "github.com/rendizi/daee/internal/db"
-	"github.com/rendizi/daee/proto"
+	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/internal/accessible"
+	db2 "github.com/rendizi/Distributed-arithmetic-expression-evaluator/internal/db"
+	daee "github.com/rendizi/Distributed-arithmetic-expression-evaluator/proto"
 	"log"
 	"strconv"
 	"strings"
@@ -107,7 +107,7 @@ func subSolve(a, operator, b string, settings db2.Settings) (string, error) {
 	}
 
 	//Вычисляем выражение
-	res, err := grpcClient.Op(context.Background(), &daee.daee{
+	res, err := grpcClient.Op(context.Background(), &daee.OpRequest{
 		A:        float32(inta),
 		B:        float32(intb),
 		Operator: operator,

@@ -3,7 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"github.com/rendizi/daee/internal/db"
-	"github.com/rendizi/daee/server"
+	"github.com/rendizi/daee/internal/server"
 	"net/http"
 	"time"
 

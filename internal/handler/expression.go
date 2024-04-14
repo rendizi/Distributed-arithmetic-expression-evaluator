@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/rendizi/daee/internal/db"
 	"github.com/rendizi/daee/internal/distributer"
-	"github.com/rendizi/daee/server"
+	"github.com/rendizi/daee/internal/server"
 	"log"
 	"net/http"
 	"strconv"
