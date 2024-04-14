@@ -16,7 +16,7 @@ message OpRequest {
   string operator = 3;
   int64 time = 4;
 }
-//Сообщение для описания результата вычисления выражения
+//Сообщение для описания результата вычислениgit я выражения
 message OpResponse {
   float result = 1;
 }
