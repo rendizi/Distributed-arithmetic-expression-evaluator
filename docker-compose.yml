@@ -10,22 +10,6 @@ services:
     ports:
       - "5432:5432"
 
-  orchestrator:
-    build: .
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-    environment:
-      - EM=O
-  agent:
-    build: .
-    ports:
-      - "5000:5004"
-    depends_on:
-      - postgres
-    environment:
-      - EM=A
   frontend:
     container_name: frontend
     image: frontend
