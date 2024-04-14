@@ -1,4 +1,4 @@
-package agent
+package main
 
 import (
 	"context"
@@ -126,23 +126,28 @@ func createAgent(port int) (*grpc.Server, net.Listener) {
 	return grpcServer, lis
 }
 
-func Main() {
+func main() {
 	log.Println("Agent is running")
 	var wg sync.WaitGroup
+	var mutex sync.Mutex // Add a mutex to synchronize access to port
 	port := 5000
 	i := 0
-	//создаем три агента
+	// Create three agents
 	for i < 3 {
 		wg.Add(1)
 		grpcServer, lis := createAgent(port)
+		mutex.Lock()
 		port++
+		mutex.Unlock()
 		i++
-		//в горутинах слушаем каждый адрес
+		// Goroutines to serve each agent
 		go func() {
+			defer wg.Done() // Decrement the WaitGroup when done
 			if err := grpcServer.Serve(lis); err != nil {
 				log.Println("error serving grpc: ", err)
 			}
 		}()
 	}
 	wg.Wait()
+	log.Println("bye bye")
 }

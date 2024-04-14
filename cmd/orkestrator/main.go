@@ -1,4 +1,4 @@
-package orkestrator
+package main
 
 import (
 	"fmt"
@@ -19,7 +19,7 @@ var (
 	operationsHandler http.Handler = http.HandlerFunc(handler.Operations)
 )
 
-func Main() {
+func main() {
 	db.Init()
 	log.Println("Orkestrator is running")
 	//mux нам нужен для cors
