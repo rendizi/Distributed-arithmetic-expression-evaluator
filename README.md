@@ -97,6 +97,6 @@ message OpResponse {
 
 # API
 
-Как я и говорил все про АПИ можно посмотреть через Insomnia
+АПИ можно посмотреть через Insomnia
 
 
