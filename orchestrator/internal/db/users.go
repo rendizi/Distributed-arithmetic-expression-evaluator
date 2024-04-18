@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"errors"
+	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/orchestrator/internal/encryption"
 )
 
 type UserJson struct {
@@ -21,8 +22,15 @@ func InsertUser(user UserJson) error {
 	if user.Password == "" || user.Login == "" {
 		return errors.New("user data can't be an empty string")
 	}
+
+	encryptedPassword, err := encryption.Generate(user.Password)
+
+	if err != nil {
+		return err
+	}
+
 	insertQuery := `INSERT INTO users (login,password) VALUES ($1, $2)`
-	_, err := db.Exec(insertQuery, user.Login, user.Password)
+	_, err = db.Exec(insertQuery, user.Login, encryptedPassword)
 	if err != nil {
 		return err
 	}
@@ -43,7 +51,8 @@ func ValidateUser(user UserJson) error {
 	}
 
 	//Если пароль, сохраненный в бд и переданный юзером не совадают, то возвращаем ошибку
-	if storedPassword != user.Password {
+	err = encryption.Compare(storedPassword, user.Password)
+	if err != nil {
 		return errors.New("invalid password")
 	}
 

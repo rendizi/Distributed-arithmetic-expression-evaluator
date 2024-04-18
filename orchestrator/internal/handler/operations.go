@@ -2,8 +2,8 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/internal/db"
-	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/internal/server"
+	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/orchestrator/internal/db"
+	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/orchestrator/internal/server"
 	"net/http"
 )
 

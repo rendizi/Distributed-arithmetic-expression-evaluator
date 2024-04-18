@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/internal/db"
-	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/internal/handler"
+	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/orchestrator/internal/db"
+	handler2 "github.com/rendizi/Distributed-arithmetic-expression-evaluator/orchestrator/internal/handler"
 	"log"
 	"net/http"
 	"os"
@@ -12,11 +12,11 @@ import (
 )
 
 var (
-	registerHandler   http.Handler = http.HandlerFunc(handler.Register)
-	loginHandler      http.Handler = http.HandlerFunc(handler.Login)
-	expressionHandler http.Handler = http.HandlerFunc(handler.Expression)
-	agentsHandler     http.Handler = http.HandlerFunc(handler.Agents)
-	operationsHandler http.Handler = http.HandlerFunc(handler.Operations)
+	registerHandler   http.Handler = http.HandlerFunc(handler2.Register)
+	loginHandler      http.Handler = http.HandlerFunc(handler2.Login)
+	expressionHandler http.Handler = http.HandlerFunc(handler2.Expression)
+	agentsHandler     http.Handler = http.HandlerFunc(handler2.Agents)
+	operationsHandler http.Handler = http.HandlerFunc(handler2.Operations)
 )
 
 func main() {

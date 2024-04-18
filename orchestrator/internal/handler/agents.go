@@ -3,8 +3,8 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/internal/accessible"
-	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/internal/server"
+	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/orchestrator/internal/accessible"
+	"github.com/rendizi/Distributed-arithmetic-expression-evaluator/orchestrator/internal/server"
 	"net/http"
 )
 
